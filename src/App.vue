@@ -248,15 +248,8 @@ const startRandom = () => {
       }, 300)
     }
   }, 100)
-}  }
-  requestAnimationFrame(animate)
 }
-
-const triggerConfetti = () => {
-  const duration = 2000
-  const end = Date.now() + duration
-
-  const frame = () => {
+}
     confetti({
       particleCount: 3,
       angle: 60,
