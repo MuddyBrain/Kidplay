@@ -249,7 +249,6 @@ const startRandom = () => {
     }
   }, 100)
 }
-}
     confetti({
       particleCount: 3,
       angle: 60,
