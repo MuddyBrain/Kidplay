@@ -98,20 +98,22 @@
             </p>
           </div>
 
-          <!-- 骰子动画状态 -->
+          <!-- 滚动动画状态 -->
           <div v-else-if="isRolling" class="text-center w-full max-w-sm">
-            <div class="dice-container">
-              <div class="dice" :class="diceClass">
-                <div class="face face-1"><span class="dot center"></span></div>
-                <div class="face face-2"><span class="dot top-right"></span><span class="dot bottom-left"></span></div>
-                <div class="face face-3"><span class="dot top-right"></span><span class="dot center"></span><span class="dot bottom-left"></span></div>
-                <div class="face face-4"><span class="dot top-left"></span><span class="dot top-right"></span><span class="dot bottom-left"></span><span class="dot bottom-right"></span></div>
-                <div class="face face-5"><span class="dot top-left"></span><span class="dot top-right"></span><span class="dot center"></span><span class="dot bottom-left"></span><span class="dot bottom-right"></span></div>
-                <div class="face face-6"><span class="dot top-left"></span><span class="dot top-right"></span><span class="dot middle-left"></span><span class="dot middle-right"></span><span class="dot bottom-left"></span><span class="dot bottom-right"></span></div>
+            <div class="slot-machine-container h-32 overflow-hidden relative">
+              <div 
+                v-for="(place, index) in visiblePlaces" 
+                :key="index"
+                class="absolute w-full text-3xl font-bold text-primary py-4 transition-all duration-100"
+                :style="{ top: `${(index) * 100}%` }"
+              >
+                {{ place.name }}
               </div>
             </div>
-            <p class="text-text-lighter mt-12 animate-pulse text-lg">🎲 正在投掷中...</p>
-          </div>          <!-- 结果展示状态 -->
+            <p class="text-text-lighter mt-8 animate-pulse">正在帮你选择中...</p>
+          </div>
+
+          <!-- 结果展示状态 -->
           <div v-else class="text-center w-full max-w-sm">
             <div class="mb-10">
               <p class="text-text-lighter mb-5 font-medium">今天去这里：</p>
@@ -184,7 +186,7 @@ const { count: rerollCount, decrement, canReroll } = useRerollCount()
 
 const currentPage = ref('home')
 const result = ref(null)
-const diceClass = ref("")const isRolling = ref(false)
+const isRolling = ref(false)
 const visiblePlaces = ref([])
 
 const filteredCount = computed(() => getFilteredPlaces().length)
@@ -207,7 +209,7 @@ const startRandom = () => {
   const filtered = getFilteredPlaces()
   
   if (filtered.length === 0) {
-    alert("没有符合条件的地点！")
+    alert('没有符合条件的地点！')
     return
   }
 
@@ -219,35 +221,30 @@ const startRandom = () => {
 
   result.value = null
   isRolling.value = true
-  diceClass.value = "rolling"
+  visiblePlaces.value = [...filtered]
   
-  // 骰子随机旋转
-  const randomRotations = [
-    "show-1", "show-2", "show-3", "show-4", "show-5", "show-6"
-  ]
-  let currentIndex = 0
-  
-  const rollDice = () => {
-    currentIndex = Math.floor(Math.random() * 6)
-    diceClass.value = randomRotations[currentIndex]
-  }
-  
-  // 快速切换骰子面
-  let count = 0
-  const interval = setInterval(() => {
-    rollDice()
-    count++
-    if (count >= 15) {
-      clearInterval(interval)
-      setTimeout(() => {
-        isRolling.value = false
-        result.value = getRandomPlace()
-        triggerConfetti()
-        decrement()
-      }, 300)
+  let duration = 1500
+  let startTime = null
+
+  const animate = (timestamp) => {
+    if (!startTime) startTime = timestamp
+    const elapsed = timestamp - startTime
+    
+    if (elapsed < duration) {
+      const randomIndex = Math.floor(Math.random() * filtered.length)
+      visiblePlaces.value = [
+        filtered[(randomIndex - 1 + filtered.length) % filtered.length],
+        filtered[randomIndex],
+        filtered[(randomIndex + 1) % filtered.length]
+      ]
+      requestAnimationFrame(animate)
+    } else {
+      isRolling.value = false
+      result.value = getRandomPlace()
+      triggerConfetti()
+      decrement()
     }
-  }, 100)
-}  }
+  }
   requestAnimationFrame(animate)
 }
 
@@ -331,75 +328,4 @@ const resetResult = () => {
 .bg-wechat:hover {
   background-color: #06ad56;
 }
-/* 骰子动画样式 */
-.dice-container {
-  width: 120px;
-  height: 120px;
-  margin: 40px auto;
-  perspective: 1000px;
-}
-
-.dice {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease;
-}
-
-.dice.rolling {
-  animation: dice-roll 0.1s linear infinite;
-}
-
-@keyframes dice-roll {
-  0% { transform: rotateX(0deg) rotateY(0deg); }
-  25% { transform: rotateX(90deg) rotateY(90deg); }
-  50% { transform: rotateX(180deg) rotateY(180deg); }
-  75% { transform: rotateX(270deg) rotateY(270deg); }
-  100% { transform: rotateX(360deg) rotateY(360deg); }
-}
-
-.face {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  background: linear-gradient(145deg, #ffffff, #e6e6e6);
-  border-radius: 20px;
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding: 15px;
-}
-
-.dot {
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(145deg, #333, #666);
-  border-radius: 50%;
-  box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
-  position: absolute;
-}
-
-.center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-.top-left { top: 20px; left: 20px; }
-.top-right { top: 20px; right: 20px; }
-.bottom-left { bottom: 20px; left: 20px; }
-.bottom-right { bottom: 20px; right: 20px; }
-.middle-left { top: 50%; left: 20px; transform: translateY(-50%); }
-.middle-right { top: 50%; right: 20px; transform: translateY(-50%); }
-
-.face-1 { transform: rotateY(0deg) translateZ(60px); }
-.face-2 { transform: rotateY(90deg) translateZ(60px); }
-.face-3 { transform: rotateY(180deg) translateZ(60px); }
-.face-4 { transform: rotateY(-90deg) translateZ(60px); }
-.face-5 { transform: rotateX(90deg) translateZ(60px); }
-.face-6 { transform: rotateX(-90deg) translateZ(60px); }
-
-.dice.show-1 { transform: rotateX(0deg) rotateY(0deg); }
-.dice.show-2 { transform: rotateX(0deg) rotateY(-90deg); }
-.dice.show-3 { transform: rotateX(0deg) rotateY(-180deg); }
-.dice.show-4 { transform: rotateX(0deg) rotateY(90deg); }
-.dice.show-5 { transform: rotateX(-90deg) rotateY(0deg); }
-.dice.show-6 { transform: rotateX(90deg) rotateY(0deg); }</style>
+</style>
