@@ -111,7 +111,9 @@
               </div>
             </div>
             <p class="text-text-lighter mt-12 animate-pulse text-lg">🎲 正在投掷中...</p>
-          </div>          <!-- 结果展示状态 -->
+          </div>
+
+          <!-- 结果展示状态 -->
           <div v-else class="text-center w-full max-w-sm">
             <div class="mb-10">
               <p class="text-text-lighter mb-5 font-medium">今天去这里：</p>
@@ -184,7 +186,7 @@ const { count: rerollCount, decrement, canReroll } = useRerollCount()
 
 const currentPage = ref('home')
 const result = ref(null)
-const diceClass = ref("");
+const diceClass = ref('')
 const isRolling = ref(false)
 const visiblePlaces = ref([])
 
@@ -208,7 +210,7 @@ const startRandom = () => {
   const filtered = getFilteredPlaces()
   
   if (filtered.length === 0) {
-    alert("没有符合条件的地点！")
+    alert('没有符合条件的地点！')
     return
   }
 
@@ -220,23 +222,13 @@ const startRandom = () => {
 
   result.value = null
   isRolling.value = true
-  diceClass.value = "rolling"
+  diceClass.value = 'rolling'
   
-  // 骰子随机旋转
-  const randomRotations = [
-    "show-1", "show-2", "show-3", "show-4", "show-5", "show-6"
-  ]
-  let currentIndex = 0
-  
-  const rollDice = () => {
-    currentIndex = Math.floor(Math.random() * 6)
-    diceClass.value = randomRotations[currentIndex]
-  }
-  
-  // 快速切换骰子面
+  const rotations = ['show-1', 'show-2', 'show-3', 'show-4', 'show-5', 'show-6']
   let count = 0
+  
   const interval = setInterval(() => {
-    rollDice()
+    diceClass.value = rotations[Math.floor(Math.random() * 6)]
     count++
     if (count >= 15) {
       clearInterval(interval)
@@ -249,6 +241,12 @@ const startRandom = () => {
     }
   }, 100)
 }
+
+const triggerConfetti = () => {
+  const duration = 2000
+  const end = Date.now() + duration
+
+  const frame = () => {
     confetti({
       particleCount: 3,
       angle: 60,
@@ -324,6 +322,7 @@ const resetResult = () => {
 .bg-wechat:hover {
   background-color: #06ad56;
 }
+
 /* 骰子动画样式 */
 .dice-container {
   width: 120px;
@@ -331,7 +330,6 @@ const resetResult = () => {
   margin: 40px auto;
   perspective: 1000px;
 }
-
 .dice {
   width: 100%;
   height: 100%;
@@ -339,11 +337,9 @@ const resetResult = () => {
   transform-style: preserve-3d;
   transition: transform 0.3s ease;
 }
-
 .dice.rolling {
   animation: dice-roll 0.1s linear infinite;
 }
-
 @keyframes dice-roll {
   0% { transform: rotateX(0deg) rotateY(0deg); }
   25% { transform: rotateX(90deg) rotateY(90deg); }
@@ -351,7 +347,6 @@ const resetResult = () => {
   75% { transform: rotateX(270deg) rotateY(270deg); }
   100% { transform: rotateX(360deg) rotateY(360deg); }
 }
-
 .face {
   position: absolute;
   width: 120px;
@@ -365,7 +360,6 @@ const resetResult = () => {
   flex-wrap: wrap;
   padding: 15px;
 }
-
 .dot {
   width: 20px;
   height: 20px;
@@ -374,7 +368,6 @@ const resetResult = () => {
   box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
   position: absolute;
 }
-
 .center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
 .top-left { top: 20px; left: 20px; }
 .top-right { top: 20px; right: 20px; }
@@ -382,17 +375,16 @@ const resetResult = () => {
 .bottom-right { bottom: 20px; right: 20px; }
 .middle-left { top: 50%; left: 20px; transform: translateY(-50%); }
 .middle-right { top: 50%; right: 20px; transform: translateY(-50%); }
-
 .face-1 { transform: rotateY(0deg) translateZ(60px); }
 .face-2 { transform: rotateY(90deg) translateZ(60px); }
 .face-3 { transform: rotateY(180deg) translateZ(60px); }
 .face-4 { transform: rotateY(-90deg) translateZ(60px); }
 .face-5 { transform: rotateX(90deg) translateZ(60px); }
 .face-6 { transform: rotateX(-90deg) translateZ(60px); }
-
 .dice.show-1 { transform: rotateX(0deg) rotateY(0deg); }
 .dice.show-2 { transform: rotateX(0deg) rotateY(-90deg); }
 .dice.show-3 { transform: rotateX(0deg) rotateY(-180deg); }
 .dice.show-4 { transform: rotateX(0deg) rotateY(90deg); }
 .dice.show-5 { transform: rotateX(-90deg) rotateY(0deg); }
-.dice.show-6 { transform: rotateX(90deg) rotateY(0deg); }</style>
+.dice.show-6 { transform: rotateX(90deg) rotateY(0deg); }
+</style>
