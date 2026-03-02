@@ -185,7 +185,8 @@ const { count: rerollCount, decrement, canReroll } = useRerollCount()
 const currentPage = ref('home')
 const result = ref(null)
 const diceClass = ref("");
-const isRolling = ref(false)const visiblePlaces = ref([])
+const isRolling = ref(false)
+const visiblePlaces = ref([])
 
 const filteredCount = computed(() => getFilteredPlaces().length)
 
